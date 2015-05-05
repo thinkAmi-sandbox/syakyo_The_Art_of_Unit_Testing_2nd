@@ -162,6 +162,8 @@ namespace LogAn.UnitTests
         }
 
 
+        //---Injectionパターン
+
         [Fact]
         public void IsValidFileName_ExtManagerThrowsException_ReturnsFalse()
         {
@@ -177,7 +179,6 @@ namespace LogAn.UnitTests
             Assert.Equal("this is fake", exception.Message);
         }
 
-
         [Fact]
         public void IsValidFileName_ExtManagerThrowsExceptionByProperty_ReturnsFalse()
         {
@@ -192,6 +193,53 @@ namespace LogAn.UnitTests
                 () => log.IsValidLogFileName("anything.anyextension"));
 
             Assert.Equal("this is fake by property", exception.Message);
+        }
+
+        public void IsValidFileName_ExtManagerThrowsExceptionByFactory_ReturnsFalse()
+        {
+            var myFakeManager = new FakeExtensionManager();
+            myFakeManager.WillThrow = new Exception("this is fake by factory");
+
+            // ファクトリメソッドでInjectionする
+            ExtensionManagerFactory.SetManager(myFakeManager);
+
+            // コンストラクタの中でFactoryのCreateメソッドを呼ぶことで、
+            // InjectionされたFactoryManagerが使える
+            var log = new LogAnalyzer();
+
+            var exception = Assert.Throws<Exception>(
+                () => log.IsValidLogFileName("anything.anyextension"));
+
+            Assert.Equal("this is fake by property", exception.Message);
+        }
+
+
+        [Fact]
+        public void OverrideTest()
+        {
+            var stub = new FakeExtensionManager();
+            stub.WillBeValid = true;
+
+            var logan = new TestableLogAnalyzer(stub);
+
+            var result = logan.IsValidLogFileName("file.ext");
+
+            Assert.True(result);
+        }
+
+        class TestableLogAnalyzer : LogAnalyzerUsingFactoryMethod
+        {
+            public IExtensionManager Manager;
+
+            public TestableLogAnalyzer(IExtensionManager mgr)
+            {
+                Manager = mgr;
+            }
+
+            protected override IExtensionManager GetManager()
+            {
+                return Manager;
+            }
         }
     }
 }

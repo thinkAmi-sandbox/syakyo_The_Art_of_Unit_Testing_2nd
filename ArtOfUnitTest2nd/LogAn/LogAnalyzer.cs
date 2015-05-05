@@ -12,10 +12,10 @@ namespace LogAn
 
         private IExtensionManager manager;
 
-        // 過去との互換性のため、引数なしのコンストラクタも用意
+        // ファクトリメソッドを使って、IExtensionManagerのインスタンスを生成
         public LogAnalyzer()
         {
-            manager = new FileExtensionManager();
+            manager = ExtensionManagerFactory.Create();
         }
 
         // テストコードから呼ぶことのできる(Injectionする)コンストラクタを作成
