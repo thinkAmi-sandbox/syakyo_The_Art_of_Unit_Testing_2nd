@@ -127,5 +127,25 @@ namespace LogAn.UnitTests
 
             
         }
+
+
+        // オブジェクトの状態(プロパティ)をテスト
+        [Fact]
+        public void IsValidFileName_WhenCalled_ChnagesWasLastFileNameValid()
+        {
+            analyzer.IsValidLogFileName("badname.foo");
+
+            Assert.False(analyzer.WasLastFileNameValid);
+        }
+
+        [Theory]
+        [InlineData("badfile.foo", false)]
+        [InlineData("goodfile.slf", true)]
+        public void IsValidFileName_WhenCalled_ChangesWasLastFileNameValid(string file, bool expected)
+        {
+            analyzer.IsValidLogFileName(file);
+
+            Assert.Equal(expected, analyzer.WasLastFileNameValid);
+        }
     }
 }
