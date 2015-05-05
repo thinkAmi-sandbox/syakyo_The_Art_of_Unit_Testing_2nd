@@ -147,5 +147,18 @@ namespace LogAn.UnitTests
 
             Assert.Equal(expected, analyzer.WasLastFileNameValid);
         }
+
+
+        [Fact]
+        public void IsValid_FileName_SupportedExtension_ReturnsTrue()
+        {
+            var myFakeManager = new FakeExtensionManager();
+            myFakeManager.WillBeValid = true;
+
+            var log = new LogAnalyzer(myFakeManager);
+
+            var result = log.IsValidLogFileName("short.ext");
+            Assert.True(result);
+        }
     }
 }

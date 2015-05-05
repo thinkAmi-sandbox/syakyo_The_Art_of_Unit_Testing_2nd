@@ -10,12 +10,25 @@ namespace LogAn
     {
         public bool WasLastFileNameValid { get; set; }
 
+        private IExtensionManager manager;
+
+        // 過去との互換性のため、引数なしのコンストラクタも用意
+        public LogAnalyzer()
+        {
+            manager = new FileExtensionManager();
+        }
+
+        // テストコードから呼ぶことのできるコンストラクタを作成
+        public LogAnalyzer(IExtensionManager mgr)
+        {
+            manager = mgr;
+        }
+
         public bool IsValidLogFileName(string fileName)
         {
             WasLastFileNameValid = false;
 
-            IExtensionManager mgr = new FileExtensionManager();
-            WasLastFileNameValid = mgr.IsValid(fileName);
+            WasLastFileNameValid = manager.IsValid(fileName);
 
             return WasLastFileNameValid;
         }

@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AlwaysValidFakeExtensionManager.cs" />
+    <Compile Include="FakeExtensionManager.cs" />
     <Compile Include="FileExtensionManager.cs" />
     <Compile Include="IExtensionManager.cs" />
     <Compile Include="LogAnalyzer.cs" />
