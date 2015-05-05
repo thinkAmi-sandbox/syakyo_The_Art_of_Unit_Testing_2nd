@@ -168,12 +168,30 @@ namespace LogAn.UnitTests
             var myFakeManager = new FakeExtensionManager();
             myFakeManager.WillThrow = new Exception("this is fake");
 
+            // コンストラクタでInjectionする
             var log = new LogAnalyzer(myFakeManager);
 
             var exception = Assert.Throws<Exception>(
                 () => log.IsValidLogFileName("anything.anyextension"));
 
             Assert.Equal("this is fake", exception.Message);
+        }
+
+
+        [Fact]
+        public void IsValidFileName_ExtManagerThrowsExceptionByProperty_ReturnsFalse()
+        {
+            var myFakeManager = new FakeExtensionManager();
+            myFakeManager.WillThrow = new Exception("this is fake by property");
+
+            // プロパティでInjectionする
+            var log = new LogAnalyzer();
+            log.ExtensionManager = myFakeManager;
+
+            var exception = Assert.Throws<Exception>(
+                () => log.IsValidLogFileName("anything.anyextension"));
+
+            Assert.Equal("this is fake by property", exception.Message);
         }
     }
 }

@@ -18,11 +18,19 @@ namespace LogAn
             manager = new FileExtensionManager();
         }
 
-        // テストコードから呼ぶことのできるコンストラクタを作成
+        // テストコードから呼ぶことのできる(Injectionする)コンストラクタを作成
         public LogAnalyzer(IExtensionManager mgr)
         {
             manager = mgr;
         }
+
+        // テストコードからInjectionすることのできるプロパティを作成
+        public IExtensionManager ExtensionManager
+        {
+            get { return manager; }
+            set { manager = value; }
+        }
+        
 
         public bool IsValidLogFileName(string fileName)
         {
