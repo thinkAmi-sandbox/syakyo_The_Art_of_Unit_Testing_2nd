@@ -24,6 +24,11 @@ namespace LogAn
                 return false;
             }
 
+            // read through the configuration file
+
+            // reaturn true if configuration says extension is supported
+
+
             WasLastFileNameValid = true;
             return true;
         }
