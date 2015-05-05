@@ -160,5 +160,20 @@ namespace LogAn.UnitTests
             var result = log.IsValidLogFileName("short.ext");
             Assert.True(result);
         }
+
+
+        [Fact]
+        public void IsValidFileName_ExtManagerThrowsException_ReturnsFalse()
+        {
+            var myFakeManager = new FakeExtensionManager();
+            myFakeManager.WillThrow = new Exception("this is fake");
+
+            var log = new LogAnalyzer(myFakeManager);
+
+            var exception = Assert.Throws<Exception>(
+                () => log.IsValidLogFileName("anything.anyextension"));
+
+            Assert.Equal("this is fake", exception.Message);
+        }
     }
 }
