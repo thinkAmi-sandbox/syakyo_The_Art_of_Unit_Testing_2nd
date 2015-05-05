@@ -8,15 +8,42 @@ using Xunit;
 
 namespace LogAn.UnitTests
 {
-    public class LogAnalyzerTests
+    public class LogAnalyzerTests : IDisposable
     {
+        private LogAnalyzer analyzer = null;
+        readonly Xunit.Abstractions.ITestOutputHelper output;
+
+        public LogAnalyzerTests(Xunit.Abstractions.ITestOutputHelper output)
+        {
+            // ITestOutputHelperはコンストラクタ引数を設定するだけで使えるようになる
+            this.output = output;
+
+            // Setupはコンストラクタで行う
+            analyzer = new LogAnalyzer();
+            output.WriteLine("Setup");
+
+            // v2ではTraceやDebugは使えない
+            System.Diagnostics.Trace.WriteLine("Trace Setup");
+            System.Diagnostics.Debug.WriteLine("Debug Setup");
+        }
+
+        public void Dispose()
+        {
+            // TearDownはIDisposable.Disposeで行う
+            output.WriteLine("TearDown");
+        }
+
+
+
         // 引数なしの時のテスト
         [Fact]
+        [Trait("category", "fast test")]    // Categoryの代替案
         public void IsValidFileName_BadExtension_ReturnsFalse()
         {
-            var analyzer = new LogAnalyzer();
+            // ローカル変数のAnalyzerを使う場合
+            var localAnalyzer = new LogAnalyzer();
 
-            bool result = analyzer.IsValidLogFileName("filewithbadextension.foo");
+            bool result = localAnalyzer.IsValidLogFileName("filewithbadextension.foo");
 
             Assert.False(result);
         }
@@ -26,7 +53,7 @@ namespace LogAn.UnitTests
         [Fact(Skip = "Use `IsValidLogFileName_ValidExtensions_ReturnsTrue` method")]
         public void IsValidLogFileName_GoodExtensionLowercase_ReturnsTrue()
         {
-            var analyzer = new LogAnalyzer();
+            // コンストラクタで設定したAnalyzerを使う場合
             bool result = analyzer.IsValidLogFileName("filewithgoodextension.slf");
 
             Assert.True(result);
@@ -35,7 +62,6 @@ namespace LogAn.UnitTests
         [Fact(Skip = "Use `IsValidLogFileName_ValidExtensions_ReturnsTrue` method")]
         public void IsValidLogFileName_GoodExtensionUppercase_ReturnsTrue()
         {
-            var analyzer = new LogAnalyzer();
             bool result = analyzer.IsValidLogFileName("filewithgoodextension.SLF");
 
             Assert.True(result);
@@ -47,8 +73,6 @@ namespace LogAn.UnitTests
         [InlineData("filewithgoodextension.slf")]
         public void IsValidLogFileName_ValidExtensions_ReturnsTrue(string file)
         {
-            var analyzer = new LogAnalyzer();
-
             bool result = analyzer.IsValidLogFileName(file);
 
             Assert.True(result);
@@ -61,14 +85,14 @@ namespace LogAn.UnitTests
         [MemberData("StaticMethodTestData")]
         public void IsValidLogFileName_ValidExtensions_ChecksThem(string file, bool expected)
         {
-            var analyzer = new LogAnalyzer();
-
             bool result = analyzer.IsValidLogFileName(file);
 
             Assert.Equal(expected, result);
         }
 
-        // 静的プロパティ版
+
+
+        // MemberData用静的プロパティ
         public static IEnumerable<object> StaticPropertyTestData
         {
             get
@@ -81,7 +105,7 @@ namespace LogAn.UnitTests
             }
         }
 
-        // 静的メンバ版
+        // MemberData用静的メンバ
         public static IEnumerable<object> StaticMethodTestData()
         {
             return new[] {
@@ -91,5 +115,17 @@ namespace LogAn.UnitTests
                 };
         }
 
+
+        [Fact]
+        public void IsValidFileName_EmptyFileName_ThrowsException()
+        {
+            // [ExceptedException]のかわりに、Assert.Throwsを使う
+            var exception = Assert.Throws<ArgumentException>(
+                () => analyzer.IsValidLogFileName(string.Empty));
+
+            Assert.Equal("filename has to be provided", exception.Message);
+
+            
+        }
     }
 }
