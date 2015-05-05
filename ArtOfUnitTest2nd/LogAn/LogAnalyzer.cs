@@ -14,23 +14,10 @@ namespace LogAn
         {
             WasLastFileNameValid = false;
 
-            if (string.IsNullOrEmpty(fileName))
-            {
-                throw new ArgumentException("filename has to be provided");
-            }
+            IExtensionManager mgr = new FileExtensionManager();
+            WasLastFileNameValid = mgr.IsValid(fileName);
 
-            if (!fileName.EndsWith(".SLF", StringComparison.CurrentCultureIgnoreCase))
-            {
-                return false;
-            }
-
-            // read through the configuration file
-
-            // reaturn true if configuration says extension is supported
-
-
-            WasLastFileNameValid = true;
-            return true;
+            return WasLastFileNameValid;
         }
     }
 }
