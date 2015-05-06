@@ -147,5 +147,124 @@ namespace LogAn.UnitTests
 
             Assert.Equal(expected, analyzer.WasLastFileNameValid);
         }
+
+
+        [Fact]
+        public void IsValid_FileName_SupportedExtension_ReturnsTrue()
+        {
+            var myFakeManager = new FakeExtensionManager();
+            myFakeManager.WillBeValid = true;
+
+            var log = new LogAnalyzer(myFakeManager);
+
+            var result = log.IsValidLogFileName("short.ext");
+            Assert.True(result);
+        }
+
+
+        //---Injectionパターン
+
+        [Fact]
+        public void IsValidFileName_ExtManagerThrowsException_ReturnsFalse()
+        {
+            var myFakeManager = new FakeExtensionManager();
+            myFakeManager.WillThrow = new Exception("this is fake");
+
+            // コンストラクタでInjectionする
+            var log = new LogAnalyzer(myFakeManager);
+
+            var exception = Assert.Throws<Exception>(
+                () => log.IsValidLogFileName("anything.anyextension"));
+
+            Assert.Equal("this is fake", exception.Message);
+        }
+
+        [Fact]
+        public void IsValidFileName_ExtManagerThrowsExceptionByProperty_ReturnsFalse()
+        {
+            var myFakeManager = new FakeExtensionManager();
+            myFakeManager.WillThrow = new Exception("this is fake by property");
+
+            // プロパティでInjectionする
+            var log = new LogAnalyzer();
+            log.ExtensionManager = myFakeManager;
+
+            var exception = Assert.Throws<Exception>(
+                () => log.IsValidLogFileName("anything.anyextension"));
+
+            Assert.Equal("this is fake by property", exception.Message);
+        }
+
+        public void IsValidFileName_ExtManagerThrowsExceptionByFactory_ReturnsFalse()
+        {
+            var myFakeManager = new FakeExtensionManager();
+            myFakeManager.WillThrow = new Exception("this is fake by factory");
+
+            // ファクトリメソッドでInjectionする
+            ExtensionManagerFactory.SetManager(myFakeManager);
+
+            // コンストラクタの中でFactoryのCreateメソッドを呼ぶことで、
+            // InjectionされたFactoryManagerが使える
+            var log = new LogAnalyzer();
+
+            var exception = Assert.Throws<Exception>(
+                () => log.IsValidLogFileName("anything.anyextension"));
+
+            Assert.Equal("this is fake by property", exception.Message);
+        }
+
+
+        [Fact]
+        public void OverrideTest()
+        {
+            var stub = new FakeExtensionManager();
+            stub.WillBeValid = true;
+
+            // オーバーライド可能なメソッドを持つテストクラスを作って
+            // Injectionする
+            var logan = new TestableLogAnalyzer(stub);
+
+            var result = logan.IsValidLogFileName("file.ext");
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void OverrideTestWithoutStub()
+        {
+            // FakeExtensionManagerというスタブを用意せずに、
+            // オーバーライド可能なメソッドを持つテストクラスを作って
+            // Injectionする
+            // ->スタブがない分、シンプルになる(位置No.1692)
+            var logan = new TestableLogAnalyzer();
+            logan.IsSupported = true;
+
+            bool result = logan.IsValidLogFileNameByOverrideResult("file.ext");
+
+            Assert.True(result);
+        }
+
+        class TestableLogAnalyzer : LogAnalyzerUsingFactoryMethod
+        {
+            public IExtensionManager Manager;
+            public bool IsSupported;
+
+            public TestableLogAnalyzer() { }
+
+            public TestableLogAnalyzer(IExtensionManager mgr)
+            {
+                Manager = mgr;
+            }
+
+            protected override IExtensionManager GetManager()
+            {
+                return Manager;
+            }
+
+            protected override bool IsValid(string fileName)
+            {
+                return IsSupported;
+            }
+        }
     }
 }

@@ -45,7 +45,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AlwaysValidFakeExtensionManager.cs" />
+    <Compile Include="ExtensionManagerFactory.cs" />
+    <Compile Include="FakeExtensionManager.cs" />
+    <Compile Include="FileExtensionManager.cs" />
+    <Compile Include="IExtensionManager.cs" />
     <Compile Include="LogAnalyzer.cs" />
+    <Compile Include="LogAnalyzerUsingFactoryMethod.cs" />
     <Compile Include="MemCalculator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
