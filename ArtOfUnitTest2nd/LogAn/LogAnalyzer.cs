@@ -57,19 +57,35 @@ namespace LogAn
         }
 
 
-        // Webサービスとのテスト向け
-        private IWebService service;
+        //------- Webサービスとのテスト向け
+        public IWebService Service { get; set; }
+        public IEmailService Email { get; set; }
 
         public LogAnalyzer(IWebService service)
         {
-            this.service = service;
+            // Webサービス単体
+            Service = service;
+        }
+
+        public LogAnalyzer(IWebService service, IEmailService email)
+        {
+            // WebサービスとEmailサービスとの連携
+            Service = service;
+            Email = email;
         }
 
         public void Analyze(string fileName)
         {
             if (fileName.Length < 8)
             {
-                service.LogError("FileName too short:" + fileName);
+                try
+                {
+                    Service.LogError("FileName too short:" + fileName);
+                }
+                catch (Exception e)
+                {
+                    Email.SendEmail("someone@somewhere.com", "can't log", e.Message);
+                }
             }
         }
     }

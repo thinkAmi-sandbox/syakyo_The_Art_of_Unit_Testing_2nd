@@ -282,5 +282,38 @@ namespace LogAn.UnitTests
         }
 
         
+        [Fact]
+        public void Analyze_WebServiceThrows_SendMail()
+        {
+            // stubとmockを組み合わせるテスト
+            var stubService = new FakeWebService();
+            stubService.ToThrow = new Exception("fake exception");
+
+            var mockEmail = new FakeEmailService();
+
+            var log = new LogAnalyzer(stubService, mockEmail);
+            var tooShortFileName = "abc.ext";
+
+            log.Analyze(tooShortFileName);
+
+            // 複数のプロパティをテスト対象とするなら、
+            // 一つのオブジェクトにまとめたほうが分かりやすく変更にも強いので
+            // こちらよりは、
+            //Assert.Contains("someone@somewhere.com", mockEmail.To);
+            //Assert.Contains("fake exception", mockEmail.Body);
+            //Assert.Contains("can't loga", mockEmail.Subject);
+
+            // こちらのほうが良い
+            var expectEmail = new EmailInfo()
+            {
+                Body = "fake exception",
+                To = "someone@somewhere.com",
+                Subject = "can't log"
+            };
+
+            // xUnit.netの場合、Equalの第三引数に
+            // IEqualityComparerを実装した比較用クラスを渡す
+            Assert.Equal(expectEmail, mockEmail.email, new EmailInfoComparer());
+        }
     }
 }
