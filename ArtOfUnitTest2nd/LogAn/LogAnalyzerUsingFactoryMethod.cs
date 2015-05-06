@@ -13,6 +13,17 @@ namespace LogAn
             return GetManager().IsValid(fileName);
         }
 
+        public bool IsValidLogFileNameByOverrideResult(string fileName)
+        {
+            return this.IsValid(fileName);
+        }
+
+        protected virtual bool IsValid(string fileName)
+        {
+            var mgr = new FileExtensionManager();
+            return mgr.IsValid(fileName);
+        }
+
         // protected virtualにすることで、
         // テストにて継承・オーバーライドの利用を可能にする
         protected virtual IExtensionManager GetManager()

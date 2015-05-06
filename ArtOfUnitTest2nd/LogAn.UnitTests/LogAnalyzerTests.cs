@@ -220,6 +220,8 @@ namespace LogAn.UnitTests
             var stub = new FakeExtensionManager();
             stub.WillBeValid = true;
 
+            // オーバーライド可能なメソッドを持つテストクラスを作って
+            // Injectionする
             var logan = new TestableLogAnalyzer(stub);
 
             var result = logan.IsValidLogFileName("file.ext");
@@ -227,9 +229,23 @@ namespace LogAn.UnitTests
             Assert.True(result);
         }
 
+        [Fact]
+        public void OverrideTestWithoutStub()
+        {
+            var logan = new TestableLogAnalyzer();
+            logan.IsSupported = true;
+
+            bool result = logan.IsValidLogFileNameByOverrideResult("file.ext");
+
+            Assert.True(result);
+        }
+
         class TestableLogAnalyzer : LogAnalyzerUsingFactoryMethod
         {
             public IExtensionManager Manager;
+            public bool IsSupported;
+
+            public TestableLogAnalyzer() { }
 
             public TestableLogAnalyzer(IExtensionManager mgr)
             {
@@ -239,6 +255,11 @@ namespace LogAn.UnitTests
             protected override IExtensionManager GetManager()
             {
                 return Manager;
+            }
+
+            protected override bool IsValid(string fileName)
+            {
+                return IsSupported;
             }
         }
     }
