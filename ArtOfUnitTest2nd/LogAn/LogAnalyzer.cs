@@ -16,7 +16,6 @@ namespace LogAn
 
         private IExtensionManager manager;
 
-        // ---コンストラクタ系
 
         // ファクトリメソッドを使って、IExtensionManagerのインスタンスを生成
         public LogAnalyzer()
@@ -55,6 +54,23 @@ namespace LogAn
             WasLastFileNameValid = manager.IsValid(fileName);
 
             return WasLastFileNameValid;
+        }
+
+
+        // Webサービスとのテスト向け
+        private IWebService service;
+
+        public LogAnalyzer(IWebService service)
+        {
+            this.service = service;
+        }
+
+        public void Analyze(string fileName)
+        {
+            if (fileName.Length < 8)
+            {
+                service.LogError("FileName too short:" + fileName);
+            }
         }
     }
 }

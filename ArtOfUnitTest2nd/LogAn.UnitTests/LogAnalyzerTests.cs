@@ -266,5 +266,21 @@ namespace LogAn.UnitTests
                 return IsSupported;
             }
         }
+
+
+        [Fact]
+        public void Analyze_TooShortFileName_CallsWebService()
+        {
+            // Webサービスとのテストで、mockを使う方法
+            var mockWebService = new FakeWebService();
+            var log = new LogAnalyzer(mockWebService);
+            var tooShortFileName = "abc.ext";
+
+            log.Analyze(tooShortFileName);
+
+            Assert.Contains("FileName too short:abc.ext", mockWebService.LastError);
+        }
+
+        
     }
 }
