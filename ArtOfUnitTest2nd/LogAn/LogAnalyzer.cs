@@ -6,11 +6,17 @@ using System.Threading.Tasks;
 
 namespace LogAn
 {
+    // internalなコンストラクタをテストから見えるようにするため、
+    // 属性を付与する
+    using System.Runtime.CompilerServices;
+    [assembly: InternalsVisibleTo("LogAn.UnitTests")]
     public class LogAnalyzer
     {
         public bool WasLastFileNameValid { get; set; }
 
         private IExtensionManager manager;
+
+        // ---コンストラクタ系
 
         // ファクトリメソッドを使って、IExtensionManagerのインスタンスを生成
         public LogAnalyzer()
@@ -23,6 +29,16 @@ namespace LogAn
         {
             manager = mgr;
         }
+
+        // 通常は外部から見えないが、上記のとおりに
+        // [InternalsVisibleTo()]を使うことで、
+        // テストクラスからも見えるようになる
+        // ＊ビルドできるよう、便宜上、引数の型を変えている
+        internal LogAnalyzer(FileExtensionManager extensionManager)
+        {
+            manager = extensionManager;
+        }
+
 
         // テストコードからInjectionすることのできるプロパティを作成
         public IExtensionManager ExtensionManager

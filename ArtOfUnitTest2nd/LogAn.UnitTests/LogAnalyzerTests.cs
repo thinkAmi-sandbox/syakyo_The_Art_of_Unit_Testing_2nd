@@ -232,6 +232,10 @@ namespace LogAn.UnitTests
         [Fact]
         public void OverrideTestWithoutStub()
         {
+            // FakeExtensionManagerというスタブを用意せずに、
+            // オーバーライド可能なメソッドを持つテストクラスを作って
+            // Injectionする
+            // ->スタブがない分、シンプルになる(位置No.1692)
             var logan = new TestableLogAnalyzer();
             logan.IsSupported = true;
 
