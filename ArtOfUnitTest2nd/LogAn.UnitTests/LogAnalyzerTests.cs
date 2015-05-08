@@ -326,7 +326,7 @@ namespace LogAn.UnitTests
             var logger = new FakeLogger();
             var analyzer = new LogAnalyzer(logger);
             analyzer.MinNameLength = 6;
-            analyzer.Analyze("a.txt");
+            analyzer.AnalyzeWhenUsingMessageString("a.txt");
 
             Assert.Contains("too short", logger.LastError);
         }
@@ -339,12 +339,107 @@ namespace LogAn.UnitTests
             var analyzer = new LogAnalyzer(logger);
 
             analyzer.MinNameLength = 6;
-            analyzer.Analyze("a.txt");
+            analyzer.AnalyzeWhenUsingMessageString("a.txt");
 
             // ・NSubstituteを使う場合、Assert.Containなどが不要
             // ・LogErrorの引数に期待値を設定してあげることで、
             // 　実行結果が期待値と一致するとテストが通る
             logger.Received().LogError("Filename too short: a.txt");
+        }
+
+
+        [Fact]
+        public void Returns_ByDefault_WorksForHardCodedArgument()
+        {
+            // NSubstituteを使って、fake objectのメソッドが呼ばれた時の戻り値を強制する
+            var fakeRules = Substitute.For<IFileNameRules>();
+
+            // ファイル名を固定する場合
+            fakeRules.IsValidLogFileName("strict.txt").Returns(true);
+            
+            Assert.True(fakeRules.IsValidLogFileName("strict.txt"));
+        }
+
+        [Fact]
+        public void Returns_ByDefault_WorksForHardCodedArgument_IgnoreArgumentValue()
+        {
+            var fakeRules = Substitute.For<IFileNameRules>();
+
+            // ファイル名を任意にする場合(引数を何でも良くする場合)
+            fakeRules.IsValidLogFileName(Arg.Any<string>()).Returns(true);
+
+            Assert.True(fakeRules.IsValidLogFileName("anything.txt"));
+        }
+
+        [Fact]
+        public void Returns_ArgAny_Throw()
+        {
+            var fakeRules = Substitute.For<IFileNameRules>();
+
+            // メソッドを呼んだ時に例外を出す方法
+            fakeRules.When(x => x.IsValidLogFileName(Arg.Any<string>()))
+                     .Do(context => { throw new Exception("fake exception"); });
+
+            var exception = Assert.Throws<Exception>(
+                () => fakeRules.IsValidLogFileName("anything"));
+        }
+
+
+        [Fact]
+        public void Analyze_LoggerThrows_CallsWebService()
+        {
+            // NSubを用いないで、複数のfakeを使うテスト
+            var mockWebService = new FakeWebService();
+            var stubLogger = new FakeLogger2();
+            stubLogger.WillThrow = new Exception("fake exception");
+
+            var analyzer = new LogAnalyzer(stubLogger, mockWebService);
+            analyzer.MinNameLength = 8;
+
+            var tooShortFileName = "abc.ext";
+            analyzer.AnalyzeWhenUsingMessageString(tooShortFileName);
+
+            Assert.Contains("fake exception", mockWebService.MessageToWebService);
+        }
+
+        [Fact]
+        public void Analyze_LoggerThrows_CallsWebServiceWithNSub()
+        {
+            // NSubを用いて、複数のfakeを使うテスト
+            var mockWebService = Substitute.For<IWebService>();
+            
+            var stubLogger = Substitute.For<ILogger>();
+            stubLogger.When(logger => logger.LogError(Arg.Any<string>()))
+                      .Do(info => { throw new Exception("fake exception"); });
+
+            var analyzer = new LogAnalyzer(stubLogger, mockWebService);
+            analyzer.MinNameLength = 8;
+
+            var tooShortFileName = "abc.ext";
+            analyzer.AnalyzeWhenUsingMessageString(tooShortFileName);
+
+            mockWebService.Received()
+                          .Write(Arg.Is<string>(s => s.Contains("fake exception")));
+        }
+
+
+        [Fact]
+        public void Analyze_LoggerThrows_CallsWebServiceWithNSubObject()
+        {
+            var mockWebService = Substitute.For<IWebServiceUsingErrorInfo>();
+            var stubLogger = Substitute.For<ILogger>();
+
+            stubLogger.When(logger => logger.LogError(Arg.Any<string>()))
+                      .Do(info => { throw new Exception("fake exception"); });
+
+            var analyzer = new LogAnalyzer(stubLogger, mockWebService);
+
+            analyzer.MinNameLength = 10;
+            analyzer.AnalyzeWhenUsingErrorInfoObject("short.txt");
+
+            var expected = new ErrorInfo(1000, "fake exception");
+            mockWebService.Received()
+                          .Write(expected);
         }
     }
 }

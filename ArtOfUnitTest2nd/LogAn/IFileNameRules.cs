@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace LogAn
 {
-    public interface IWebService
+    public interface IFileNameRules
     {
-        void LogError(string message);
-
-        void Write(string message);
+        bool IsValidLogFileName(string fileName);
     }
 }

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace LogAn
 {
-    public interface IWebService
+    public class EmailInfo
     {
-        void LogError(string message);
-
-        void Write(string message);
+        public string Body;
+        public string To;
+        public string Subject;
     }
 }

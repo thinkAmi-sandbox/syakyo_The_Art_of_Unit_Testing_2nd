@@ -76,14 +76,6 @@ namespace LogAn
 
         public void Analyze(string fileName)
         {
-            // NSubstitute向けのテスト
-            if (fileName.Length < MinNameLength)
-            {
-                _logger.LogError(string.Format("Filename too short: {0}", fileName));
-                return;
-            }
-
-
             // Webサービスとの連携のテスト
             if (fileName.Length < 8)
             {
@@ -108,5 +100,54 @@ namespace LogAn
         }
 
         public int MinNameLength { get; set; }
+
+        public void AnalyzeWhenUsingMessageString(string fileName)
+        {
+            if (fileName.Length < MinNameLength)
+            {
+                try
+                {
+                    _logger.LogError(string.Format("Filename too short: {0}", fileName));
+                }
+                catch (Exception e)
+                {
+                    _webService.Write("Error From Logger: " + e);
+                }
+            }
+        }
+
+        public void AnalyzeWhenUsingErrorInfoObject(string fileName)
+        {
+            if (fileName.Length < MinNameLength)
+            {
+                try
+                {
+                    _logger.LogError(string.Format("Filename too short: {0}", fileName));
+                }
+                catch (Exception e)
+                {
+                    _webServiceErrorInfo.Write(new ErrorInfo(1000, e.Message));
+                }
+            }
+        }
+
+
+        //-------NSubstituteを使って複数のfakeを使ったテスト向け
+        private IWebService _webService;
+
+        public LogAnalyzer(ILogger logger, IWebService webService)
+        {
+            _logger = logger;
+            _webService = webService;
+        }
+
+        //------NSubstitute + ErrorInfoを使って複数のfakeを使ったテスト向け
+        private IWebServiceUsingErrorInfo _webServiceErrorInfo;
+
+        public LogAnalyzer(ILogger logger, IWebServiceUsingErrorInfo webService)
+        {
+            _logger = logger;
+            _webServiceErrorInfo = webService;
+        }
     }
 }

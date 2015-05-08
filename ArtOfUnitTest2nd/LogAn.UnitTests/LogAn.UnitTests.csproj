@@ -55,11 +55,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EmailInfo.cs" />
     <Compile Include="EmailInfoComparer.cs" />
     <Compile Include="FakeEmailService.cs" />
     <Compile Include="FakeExtensionManager.cs" />
     <Compile Include="FakeLogger.cs" />
+    <Compile Include="FakeLogger2.cs" />
     <Compile Include="FakeWebService.cs" />
     <Compile Include="LogAnalyzerTests.cs" />
     <Compile Include="MemCalculatorTests.cs" />
