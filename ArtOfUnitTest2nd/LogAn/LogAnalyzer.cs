@@ -76,6 +76,15 @@ namespace LogAn
 
         public void Analyze(string fileName)
         {
+            // NSubstitute向けのテスト
+            if (fileName.Length < MinNameLength)
+            {
+                _logger.LogError(string.Format("Filename too short: {0}", fileName));
+                return;
+            }
+
+
+            // Webサービスとの連携のテスト
             if (fileName.Length < 8)
             {
                 try
@@ -88,5 +97,16 @@ namespace LogAn
                 }
             }
         }
+
+
+        //-------NSubstituteを使ったテスト向け
+        private ILogger _logger;
+
+        public LogAnalyzer(ILogger logger)
+        {
+            _logger = logger;
+        }
+
+        public int MinNameLength { get; set; }
     }
 }

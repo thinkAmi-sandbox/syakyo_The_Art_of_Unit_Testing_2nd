@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Xunit;
-
 namespace LogAn.UnitTests
 {
+    using Xunit;
+    using NSubstitute;
+
     public class LogAnalyzerTests : IDisposable
     {
         private LogAnalyzer analyzer = null;
@@ -314,6 +315,36 @@ namespace LogAn.UnitTests
             // xUnit.netの場合、Equalの第三引数に
             // IEqualityComparerを実装した比較用クラスを渡す
             Assert.Equal(expectEmail, mockEmail.email, new EmailInfoComparer());
+        }
+
+
+        //---NSubstituteの利用
+        [Fact]
+        public void Analyze_TooShortFileName_CallLogger()
+        {
+            // FakeLoggerを自作した時のテスト
+            var logger = new FakeLogger();
+            var analyzer = new LogAnalyzer(logger);
+            analyzer.MinNameLength = 6;
+            analyzer.Analyze("a.txt");
+
+            Assert.Contains("too short", logger.LastError);
+        }
+
+        [Fact]
+        public void Analyze_TooShortFileName_CallNsubLogger()
+        {
+            // NSubstituteを使う時のテスト
+            var logger = Substitute.For<ILogger>();
+            var analyzer = new LogAnalyzer(logger);
+
+            analyzer.MinNameLength = 6;
+            analyzer.Analyze("a.txt");
+
+            // ・NSubstituteを使う場合、Assert.Containなどが不要
+            // ・LogErrorの引数に期待値を設定してあげることで、
+            // 　実行結果が期待値と一致するとテストが通る
+            logger.Received().LogError("Filename too short: a.txt");
         }
     }
 }
