@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NSubstitute">
+      <HintPath>..\packages\NSubstitute.1.8.1.0\lib\net45\NSubstitute.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -52,10 +55,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EmailInfo.cs" />
     <Compile Include="EmailInfoComparer.cs" />
+    <Compile Include="EventPresenterTest.cs" />
     <Compile Include="FakeEmailService.cs" />
     <Compile Include="FakeExtensionManager.cs" />
+    <Compile Include="FakeLogger.cs" />
+    <Compile Include="FakeLogger2.cs" />
     <Compile Include="FakeWebService.cs" />
     <Compile Include="LogAnalyzerTests.cs" />
     <Compile Include="MemCalculatorTests.cs" />

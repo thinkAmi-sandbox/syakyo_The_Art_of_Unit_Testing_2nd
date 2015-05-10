@@ -24,6 +24,12 @@ namespace LogAn.UnitTests
         }
 
 
-        
+        // NSub用(mock向け)
+        public string MessageToWebService;
+
+        public void Write(string message)
+        {
+            MessageToWebService = message;
+        }
     }
 }

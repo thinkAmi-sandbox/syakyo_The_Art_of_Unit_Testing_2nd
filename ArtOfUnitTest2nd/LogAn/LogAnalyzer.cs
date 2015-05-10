@@ -9,6 +9,7 @@ namespace LogAn
     // internalなコンストラクタをテストから見えるようにするため、
     // 属性を付与する
     using System.Runtime.CompilerServices;
+    // このクラスはpublicなので警告が出ることに注意
     [assembly: InternalsVisibleTo("LogAn.UnitTests")]
     public class LogAnalyzer
     {
@@ -76,6 +77,7 @@ namespace LogAn
 
         public void Analyze(string fileName)
         {
+            // Webサービスとの連携のテスト
             if (fileName.Length < 8)
             {
                 try
@@ -87,6 +89,66 @@ namespace LogAn
                     Email.SendEmail("someone@somewhere.com", "can't log", e.Message);
                 }
             }
+        }
+
+
+        //-------NSubstituteを使ったテスト向け
+        private ILogger _logger;
+
+        public LogAnalyzer(ILogger logger)
+        {
+            _logger = logger;
+        }
+
+        public int MinNameLength { get; set; }
+
+        public void AnalyzeWhenUsingMessageString(string fileName)
+        {
+            if (fileName.Length < MinNameLength)
+            {
+                try
+                {
+                    _logger.LogError(string.Format("Filename too short: {0}", fileName));
+                }
+                catch (Exception e)
+                {
+                    _webService.Write("Error From Logger: " + e);
+                }
+            }
+        }
+
+        public void AnalyzeWhenUsingErrorInfoObject(string fileName)
+        {
+            if (fileName.Length < MinNameLength)
+            {
+                try
+                {
+                    _logger.LogError(string.Format("Filename too short: {0}", fileName));
+                }
+                catch (Exception e)
+                {
+                    _webServiceErrorInfo.Write(new ErrorInfo(1000, e.Message));
+                }
+            }
+        }
+
+
+        //-------NSubstituteを使って複数のfakeを使ったテスト向け
+        private IWebService _webService;
+
+        public LogAnalyzer(ILogger logger, IWebService webService)
+        {
+            _logger = logger;
+            _webService = webService;
+        }
+
+        //------NSubstitute + ErrorInfoを使って複数のfakeを使ったテスト向け
+        private IWebServiceUsingErrorInfo _webServiceErrorInfo;
+
+        public LogAnalyzer(ILogger logger, IWebServiceUsingErrorInfo webService)
+        {
+            _logger = logger;
+            _webServiceErrorInfo = webService;
         }
     }
 }

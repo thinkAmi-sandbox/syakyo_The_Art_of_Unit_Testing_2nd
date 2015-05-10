@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace LogAn
 {
-    public interface IWebService
+    public interface ILogger
     {
         void LogError(string message);
-
-        void Write(string message);
     }
 }
