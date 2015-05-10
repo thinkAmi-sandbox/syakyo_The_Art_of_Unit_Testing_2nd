@@ -9,6 +9,7 @@ namespace LogAn
     // internalなコンストラクタをテストから見えるようにするため、
     // 属性を付与する
     using System.Runtime.CompilerServices;
+    // このクラスはpublicなので警告が出ることに注意
     [assembly: InternalsVisibleTo("LogAn.UnitTests")]
     public class LogAnalyzer
     {

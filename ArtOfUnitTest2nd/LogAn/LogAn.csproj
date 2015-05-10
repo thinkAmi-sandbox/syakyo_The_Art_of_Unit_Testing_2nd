@@ -48,6 +48,7 @@
     <Compile Include="AlwaysValidFakeExtensionManager.cs" />
     <Compile Include="EmailInfo.cs" />
     <Compile Include="ErrorInfo.cs" />
+    <Compile Include="EventPresenter.cs" />
     <Compile Include="ExtensionManagerFactory.cs" />
     <Compile Include="FileExtensionManager.cs" />
     <Compile Include="IEmailService.cs" />
