@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Chap7\TimeLoggerTests.cs" />
     <Compile Include="EmailInfoComparer.cs" />
     <Compile Include="EventPresenterTest.cs" />
     <Compile Include="FakeEmailService.cs" />
